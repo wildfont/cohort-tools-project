@@ -15,6 +15,6 @@ firstName: String,
   cohort: { type: Schema.Types.ObjectId, ref: "Cohort" }
 
 })
-const Student =mongoose.model("Student", StudentSchema)
+const Student =mongoose.model("Student", studentSchema)
 module.exports = Student
 
