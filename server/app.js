@@ -4,6 +4,8 @@ try {
   console.warn(".env file not found, using default environment values")
 }
 
+//TODO ask Jorge about PORT not defined
+
 const express = require("express")
 const User = require("./models/user.models.js")
 
