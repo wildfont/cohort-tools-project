@@ -1,38 +1,33 @@
-const express = require("express");
-const cors = require("cors");
-const morgan = require("morgan");
-const cookieParser = require("cookie-parser");
 const PORT = 5005;
-const Cohort = require("./mongoose_schema/cohort.model.js");
-const Student = require("./mongoose_schema/student.model.js");
+const Cohort = require("./models/cohort.model.js");
+const Student = require("./models/student.model.js");
+const express = require("express")
+const User = require("./models/user.models.js")
+
+
+const app = express();
+const config = require("./config")
+config(app)
 
 // STATIC DATA
 // Devs Team - Import the provided files with JSON data of students and cohorts here:
 // ...
-const mongoose = require("mongoose");
-mongoose
-  .connect("mongodb://127.0.0.1:27017/cohorts-tools-api")
-  .then((x) => console.log(`Connect to Database:"${x.connections[0].name}"`))
+ 
+const connectDB = require("./db")
+app.use( async (req, res, next) => {
+await connectDB()
+next()
 
-  .catch((err) => console.error("Error connecting to MongoDB", err));
+} )
+
+
+const errorHandling = require("./errors")
+errorHandling(app)
+
+
+
 
 // INITIALIZE EXPRESS APP - https://expressjs.com/en/4x/api.html#express
-const app = express();
-
-// MIDDLEWARE
-// Research Team - Set up CORS middleware here:
-// ...
-app.use(
-  cors({
-    origin: process.env.ORIGIN,
-  }),
-);
-
-app.use(express.json());
-app.use(morgan("dev"));
-app.use(express.static("public"));
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
 
 // ROUTES - https://expressjs.com/en/starter/basic-routing.html
 // Devs Team - Start working on the routes here:
@@ -218,19 +213,7 @@ app.delete("/api/students/:studentId", async (req, res) => {
   }
 });
 
-// error handling for 404 errors
-app.use((req, res) => {
-  res.status(404).json({ errorMessage: "Sorry, route not found" });
-});
 
-// error handling for 500 errors
-app.use((error, req, res, next) => {
-  // express know this is the 500 error handler just because it has 4 parameters.
-  console.log(error);
-  res
-    .status(500)
-    .json({ errorMessage: "something went BOOM, sorry about this" });
-});
 
 // START SERVER
 app.listen(PORT, () => {
