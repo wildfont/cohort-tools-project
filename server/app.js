@@ -1,6 +1,9 @@
-const PORT = 5005;
-const Cohort = require("./models/cohort.model.js");
-const Student = require("./models/student.model.js");
+try {
+  process.loadEnvFile()
+} catch(error) {
+  console.warn(".env file not found, using default environment values")
+}
+
 const express = require("express")
 const User = require("./models/user.models.js")
 
@@ -20,9 +23,12 @@ next()
 
 } )
 
+const indexRouter = require("./routes/index.routes.js")
+app.use("/api", indexRouter)
 
 const errorHandling = require("./errors")
 errorHandling(app)
+
 
 
 
@@ -37,185 +43,12 @@ app.get("/docs", (req, res) => {
 });
 
 //const cohorts = require("./cohorts.json")
-app.get("/api/cohorts", async (req, res) => {
-  try {
-    const response = await Cohort.find();
-    res.status(200).json(response);
-    res.json(response);
-  } catch (error) {
-    console.log(error);
-  }
-});
 
-app.post("/api/cohorts", (req, res) => {
-  console.log(req.body);
 
-  const newCohort = {
-    inProgress: req.body.inProgress,
-    cohortSlug: req.body.cohortSlug,
-    cohortName: req.body.cohortName,
-    program: req.body.program,
-    campus: req.body.campus,
-    startDate: req.body.startDate,
-    endDate: req.body.endDate,
-    programManager: req.body.programManager,
-    leadTeacher: req.body.leadTeacher,
-    totalHours: req.body.totalHours,
-  };
-  Cohort.create(newCohort)
-    .then(() => {
-      res.send("Cohort Created");
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-});
-
-app.get("/api/cohorts/:cohortId", async (req, res) => {
-  try {
-    const response = await Cohort.findById(req.params.cohortId);
-    res.status(200).json(response);
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.put("/api/cohorts/:cohortId", async (req, res, next) => {
-  console.log(req.params);
-  console.log(req.body);
-
-  try {
-    const updatedCohort = {
-      inProgress: req.body.inProgress,
-      cohortSlug: req.body.cohortSlug,
-      cohortName: req.body.cohortName,
-      program: req.body.program,
-      campus: req.body.campus,
-      startDate: req.body.startDate,
-      endDate: req.body.endDate,
-      programManager: req.body.programManager,
-      leadTeacher: req.body.leadTeacher,
-      totalHours: req.body.totalHours,
-    };
-    const response = await Cohort.findByIdAndUpdate(
-      req.params.cohortId,
-      updatedCohort,
-    );
-
-    res.status(202).send("cohort updated");
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.delete("/api/cohorts/:cohortId", async (req, res) => {
-  try {
-    const response = await Cohort.findByIdAndDelete(req.params.cohortId);
-    res.status(202).json(response);
-  } catch (error) {
-    next(error);
-  }
-});
-
-//const students = require("./students.json")
-app.get("/api/students", async (req, res) => {
-  try {
-    const response = await Student.find().populate("cohort");
-    res.status(200).json(response);
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.post("/api/students", (req, res) => {
-  //1. we need to receive a body
-  console.log(req.body);
-  //2. we need to go into the db to create something
-
-  const newStudent = {
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    email: req.body.email,
-    phone: req.body.phone,
-    linkedinUrl: req.body.linkedinUrl,
-    languages: req.body.languages,
-    program: req.body.program,
-    background: req.body.background,
-    image: req.body.image,
-    projects: req.body.projects,
-    cohort: req.body.cohort,
-  };
-  Student.create(newStudent)
-    .then(() => {
-      res.sendStatus(201);
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-});
-
-app.get("/api/students/:studentId", async (req, res) => {
-  try {
-    const response = await Student.findById(req.params.studentId).populate(
-      "cohort",
-    );
-    res.status(200).json(response);
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.put("/api/students/:studentId", async (req, res, next) => {
-  console.log(req.params);
-  console.log(req.body);
-
-  try {
-    const updatedStudent = {
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      email: req.body.email,
-      phone: req.body.phone,
-      linkedinUrl: req.body.linkedinUrl,
-      languages: req.body.languages,
-      program: req.body.program,
-      background: req.body.background,
-      image: req.body.image,
-      projects: req.body.projects,
-    };
-    const response = await Student.findByIdAndUpdate(
-      req.params.studentId,
-      updatedStudent,
-    );
-
-    res.sendStatus(202).send("student updated");
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.get("/api/students/cohort/:cohortId", async (req, res, next) => {
-  try {
-    const studentsBelongCohort = await Student.find({
-      cohort: req.params.cohortId,
-    }).populate("cohort");
-    res.status(200).json(studentsBelongCohort);
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.delete("/api/students/:studentId", async (req, res) => {
-  try {
-    const response = await Student.findByIdAndDelete(req.params.studentId);
-    res.status(200).json(response);
-  } catch (error) {
-    next(error);
-  }
-});
 
 
 
 // START SERVER
 app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
+  console.log(`Server listening on port ${process.env.PORT}`);
 });
