@@ -16,7 +16,6 @@ const userSchema = new Schema(
     username: String,
   },
   {
-    // this second object adds extra properties: `createdAt` and `updatedAt`
     timestamps: true,
   },
 );

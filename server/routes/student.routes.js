@@ -1,9 +1,8 @@
-const express = require("express")
-const router = express.Router()
+const express = require("express");
+const router = express.Router();
 
 const Student = require("../models/student.model.js");
 
-//const students = require("./students.json")
 router.get("/", async (req, res) => {
   try {
     const response = await Student.find().populate("cohort");
@@ -14,9 +13,7 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/", (req, res) => {
-  //1. we need to receive a body
   console.log(req.body);
-  //2. we need to go into the db to create something
 
   const newStudent = {
     firstName: req.body.firstName,
@@ -99,4 +96,4 @@ router.delete("/:studentId", async (req, res) => {
   }
 });
 
-module.exports = router
+module.exports = router;
